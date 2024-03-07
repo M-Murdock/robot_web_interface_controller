@@ -9,5 +9,5 @@ def hello_world():
 
 if __name__ == '__main__':  
     #app.run(host="10.42.99.24")
-    app.run(host="10.42.99.11")
-    # app.run(debug="true")
+    # app.run(host="10.42.99.11")
+    app.run(debug="true")
