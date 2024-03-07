@@ -4,9 +4,6 @@
 <head>
 <meta charset="utf-8" />
 
-<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script> -->
-
 <script type="text/javascript" src="/static/js/eventemitter2.min.js"></script>
 <script type="text/javascript" src="/static/js/roslib.min.js"></script>
 
@@ -62,7 +59,6 @@
   // ----------------------------------------------------------------
   // Connecting to ROS
   var ros = new ROSLIB.Ros({
-    // url : 'ws://10.42.99.24:9090'
     // url : 'ws://localhost:9090'
     url : 'ws://10.42.99.11:9090'
   });
