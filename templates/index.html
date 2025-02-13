@@ -73,7 +73,7 @@
 
     setup = () => {
       let ros = new ROSLIB.Ros({
-        url : 'ws://{{ host }}:{{ port }}'
+        url : 'wss://{{ host }}:{{ port }}'
       });
 
       ros.on('connection', function() {
