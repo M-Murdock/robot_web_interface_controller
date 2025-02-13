@@ -55,41 +55,50 @@
 <div class="key" id="open">Open Gripper</div>
 <!-- ------------------------------------------------------------->
 
+<br>
+<textarea id="output" cols="80" rows="10" readonly="true"></textarea>
+
 <script>
-  // ----------------------------------------------------------------
-  // Connecting to ROS
-  var ros = new ROSLIB.Ros({
-    // url : 'ws://localhost:9090'
-    url : 'ws://10.42.99.11:9090'
-  });
+  function displayMsg(msg) {
+    let text = document.getElementById("output");
+    text.value += msg + "\n";
+    setTimeout(() => { text.scrollTop = text.scrollHeight; }, 20);
+  }
 
-  ros.on('connection', function() {
-    console.log('Connected to websocket server.');
-  });
+  class JoyPublisher {
+    constructor() {
+      this.ros = null;
+      this.joyTopic = null;
+    };
 
-  ros.on('error', function(error) {
-    console.log('Error connecting to websocket server: ', error);
-  });
+    setup = () => {
+      let ros = new ROSLIB.Ros({
+        url : 'ws://{{ host }}:{{ port }}'
+      });
 
-  ros.on('close', function() {
-    console.log('Connection to websocket server closed.');
-  });
-  
-  // ----------------------------------------------------------------
+      ros.on('connection', function() {
+        console.log('Connected to websocket server.');
+        this.ros = ros;
+        this.joyTopic = new ROSLIB.Topic({
+          ros: ros,
+          name: '/joy',
+          messageType: 'sensor_msgs/Joy'
+        });
+      });
 
-  // ----------------------------------------------------------------
-  // Function to send ROS message
+      ros.on('error', (error) => {
+        console.log('Error connecting to websocket server: ', error);
+        // try again after 2s
+        console.log("scheduled");
+        window.setTimeout(this.setup.bind(this), 10000);
+      });
 
-  var publishInterval;
-  // Publish the joy message
-  var joyTopic = new ROSLIB.Topic({
-    ros: ros,
-    name: '/joy',
-    messageType: 'sensor_msgs/Joy'
-  });
+      ros.on('close', function() {
+        console.log('Connection to websocket server closed.');
+      });
+    };
 
-  function startPublishing(direction) {
-  
+    buttonPressed = (direction) => {
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
         buttons: [0, 0] // Initialize buttons
@@ -122,58 +131,48 @@
           break;
       }
 
-      
-
-      joyTopic.publish(joyMsg);
+      displayMsg(direction);
+      if (this.joyTopic) {
+        this.joyTopic.publish(joyMsg);
+      }
       console.log(joyMsg);
+    };
+
+    buttonReleased = () => {
+      // Publish the joy message
+      var joyMsg = new ROSLIB.Message({
+        axes: [0.0, 0.0, 0.0], // Initialize axes
+        buttons: [0, 0] // Initialize buttons
+      });
+
+      if (this.joyTopic) {
+        this.joyTopic.publish(joyMsg);
+      }
+      displayMsg("released");
+   };
 
   }
-
-  function stopPublishing() {
-    // Publish the joy message
-    var joyMsg = new ROSLIB.Message({
-      axes: [0.0, 0.0, 0.0], // Initialize axes
-      buttons: [0, 0] // Initialize buttons
-    });
-    joyTopic.publish(joyMsg);
+  
+  let pub = new JoyPublisher();
+  pub.setup();
+  function onMouseDown(e) {
+    pub.buttonPressed(e.srcElement.id);
   }
 
 
   // ----------------------------------------------------------------
-  document.getElementById('up').addEventListener('mousedown', function() {
-    startPublishing('up');
-  });
-
-  document.getElementById('down').addEventListener('mousedown', function() {
-    startPublishing('down');
-  });
-
-  document.getElementById('left').addEventListener('mousedown', function() {
-    startPublishing('left');
-  });
-
-  document.getElementById('right').addEventListener('mousedown', function() {
-    startPublishing('right');
-  });
-
-  document.getElementById('z-plus').addEventListener('mousedown', function() {
-    startPublishing('z-plus');
-  });
-
-  document.getElementById('z-minus').addEventListener('mousedown', function() {
-    startPublishing('z-minus');
-  });
-
-  document.getElementById('open').addEventListener('mousedown', function() {
-    startPublishing('open');
-  });
+  document.getElementById('up').addEventListener('mousedown', onMouseDown);
+  document.getElementById('down').addEventListener('mousedown', onMouseDown);
+  document.getElementById('left').addEventListener('mousedown', onMouseDown);
+  document.getElementById('right').addEventListener('mousedown', onMouseDown);
+  document.getElementById('z-plus').addEventListener('mousedown', onMouseDown);
+  document.getElementById('z-minus').addEventListener('mousedown', onMouseDown);
+  document.getElementById('open').addEventListener('mousedown', onMouseDown);
 
   // ---------------------
   // ---------------------
 
-  window.addEventListener('mouseup', function() {
-    stopPublishing();
-  });
+  window.addEventListener('mouseup', pub.buttonReleased);
   // ----------------------------------------------------------------
 
   
