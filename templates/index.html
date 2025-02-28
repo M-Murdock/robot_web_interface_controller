@@ -59,6 +59,7 @@
 <textarea id="output" cols="80" rows="10" readonly="true"></textarea>
 
 <script>
+  
   function displayMsg(msg) {
     let text = document.getElementById("output");
     text.value += msg + "\n";
@@ -73,7 +74,7 @@
 
     setup = () => {
       let ros = new ROSLIB.Ros({
-        url : 'wss://{{ host }}:{{ port }}'
+        url : 'ws://{{ host }}:{{ port }}'
       });
 
       ros.on('connection', function() {
@@ -84,7 +85,7 @@
           name: '/joy',
           messageType: 'sensor_msgs/Joy'
         });
-      });
+      }.bind(this));
 
       ros.on('error', (error) => {
         console.log('Error connecting to websocket server: ', error);

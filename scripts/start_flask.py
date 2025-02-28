@@ -15,5 +15,5 @@ def hello_world():
         port="9090")
 
 if __name__ == '__main__': 
-    app.run(host="0.0.0.0")
+    app.run(host="10.42.99.24", debug="true")
     # app.run(debug="true")
