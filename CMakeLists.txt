@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(teleop_lib)
+project(robot_web_interface_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -44,10 +44,10 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-    RobotCommand.msg
-)
+# add_message_files(
+#   FILES
+#     RobotCommand.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
