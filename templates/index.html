@@ -60,11 +60,21 @@
 
 <script>
   
-  function displayMsg(msg) {
-    let text = document.getElementById("output");
-    text.value += msg + "\n";
-    setTimeout(() => { text.scrollTop = text.scrollHeight; }, 20);
-  }
+  // set up testing if necessary
+  
+  const params = new URLSearchParams(document.location.search);
+  document.addEventListener("DOMContentLoaded", function () {
+    if (params.get("test")) {
+      window.displayMsg = function (msg) {
+        let text = document.getElementById("output");
+        text.value += msg + "\n";
+        setTimeout(() => { text.scrollTop = text.scrollHeight; }, 20);
+      };
+    } else {
+      document.getElementById("output").style.display = "none";
+      window.displayMsg = function (msg) {};
+    }
+  });
 
   class JoyPublisher {
     constructor() {
