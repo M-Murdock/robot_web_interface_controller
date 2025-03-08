@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 import argparse
 from flask import Flask, render_template, request
 import os
+import sys
 from urllib.parse import urlparse
 
 
@@ -20,7 +23,6 @@ def hello_world():
         **app.config.get_namespace("PAGEPARAMS_")) # load in any params we specified in the config (ws_port)
 
 
-
 if __name__ == '__main__': 
     # set up parser to get args from command line AND rosparam (if available)
     # todo: make this work also from a config file
@@ -29,23 +31,23 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--port", help="port to launch on")
     parser.add_argument("-w", "--ws-port", default="9090", help="websocket port to use")
     parser.add_argument("-d", "--debug", action="store_true", help="launch in debug mode")
-    parser.add_argument("--toggle", action="store_true", help="run in button toggle mode rather than hold mouse click mode")
+    parser.add_argument("--toggle", action="store_true", help="run in button toggle mode rather than hold mouse click mode", default=True)
     
     # load default values using rospy, if available
     try:
         import rospy
     except ImportError:
-        pass
+        rospy = None
     else:
-        rospy.init_node("joy_server", anonymous=True)
+        rospy.init_node("joy_server", anonymous=True, disable_signals=True)
         # set all the params on the local parameter server as defaults in the parser
         # NB: ignores keys on the param server that are not already defined as args
         # if there is a ros parameter called "help" this will cause weird behavior, so don't
         # have one or make this smarter if it's for some reason necessary
-        parser.set_defaults(**rospy.get_param("~"))
-
-        # cleanup; have to release manually since import is global
-        rospy = None
+        if rospy.has_param("~"):
+            parser.set_defaults(**rospy.get_param("~"))
+        
+        sys.argv = rospy.myargv(argv=sys.argv)
     
     args = parser.parse_args()
 
@@ -56,8 +58,7 @@ if __name__ == '__main__':
     hostname = args.hostname or "127.0.0.1"
     port = args.port or "5000"
     app.config["SERVER_NAME"] = f"{hostname}:{port}"
-    print(app.config["SERVER_NAME"])
-
+    rospy.loginfo(f"Control server running on {app.config['SERVER_NAME']}")
     # values to be passed directly to the template(s) to render
     # keys must be all-caps but will be turned back to lowercase inside the template
     # to pass a parameter along internally, use the prefix PAGEPARAMS_ and it should
@@ -66,4 +67,8 @@ if __name__ == '__main__':
     app.config["PAGEPARAMS_TOGGLE"] = bool(args.toggle)
 
     app.run()
+
+    # clean up ros
+    if rospy:
+        rospy.signal_shutdown("sigint")
 
