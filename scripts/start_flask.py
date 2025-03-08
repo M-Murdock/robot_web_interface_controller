@@ -29,6 +29,7 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--port", help="port to launch on")
     parser.add_argument("-w", "--ws-port", default="9090", help="websocket port to use")
     parser.add_argument("-d", "--debug", action="store_true", help="launch in debug mode")
+    parser.add_argument("--toggle", action="store_true", help="run in button toggle mode rather than hold mouse click mode")
     
     # load default values using rospy, if available
     try:
@@ -62,6 +63,7 @@ if __name__ == '__main__':
     # to pass a parameter along internally, use the prefix PAGEPARAMS_ and it should
     # automatically show up when the template is rendered
     app.config["PAGEPARAMS_WS_PORT"] = args.ws_port   
+    app.config["PAGEPARAMS_TOGGLE"] = bool(args.toggle)
 
     app.run()
 

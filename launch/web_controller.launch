@@ -1,5 +1,6 @@
 <launch>
   <arg name="ws_port" default="9090" doc="Websocket port for rosbridge" />
+  <arg name="toggle" default="false" doc="run in toggle button mode (rather than click-and-hold)">
 
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
      <arg name="port" value="$(arg ws_port)"/>
@@ -7,6 +8,7 @@
 
   <node name="joy_server" pkg="robot_web_interface_controller" type="start_flask.py">
     <param name="ws_port" value="$(arg ws_port)" />
+    <param name="toggle" value="%(arg toggle)" />
   </node>
 
 </launch>
