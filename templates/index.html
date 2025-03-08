@@ -23,11 +23,11 @@
   }
   .key {
       padding: 10px;
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
+      /* background-color: #f0f0f0;
+      border: 1px solid #ccc; */
       text-align: center;
       font-size: 20px;
-      cursor: pointer;
+      /* cursor: pointer; */
   }
   .key:hover {
       background-color: #ccc;
@@ -39,20 +39,22 @@
 <!-- ------------------------------------------------------------->
 <div class="keypad">
   <div class="invisible"></div>
-  <div class="key" id="up">&#8593;</div>
+  <button class="key" id="up" aria-label="up">&#8593;</button>
   <div class="invisible"></div>
-  <div class="key" id="left">&#8592;</div>
+  <button class="key" id="left" aria-label="left">&#8592;</button>
   <div class="invisible"></div>
-  <div class="key" id="right">&#8594;</div>
+  <button class="key" id="right" aria-label="right">&#8594;</button>
   <div class="invisible"></div>
-  <div class="key" id="down">&#8595;</div>
+  <button class="key" id="down" aria-label="down">&#8595;</button>
   <div class="invisible"></div>
-  <div class="key" id="z-plus">Up</div>
+  <button class="key" id="z-plus">Up</button>
   <div class="invisible"></div>
-  <div class="key" id="z-minus">Down</div>
+  <button class="key" id="z-minus">Down</button>
+  <button class="key" id="open">Open</button>
+  <div class="invisible"></div>
+  <button class="key" id="close">Close</button>
 </div>
 
-<div class="key" id="open">Open Gripper</div>
 <!-- ------------------------------------------------------------->
 
 <br>
@@ -138,6 +140,9 @@
         case 'open':
           joyMsg.buttons[0] = 1; // open gripper button
           break;
+        case 'close':
+          joyMsg.buttons[1] = 1; // open gripper button
+          break;
         default:
           break;
       }
@@ -179,6 +184,7 @@
   document.getElementById('z-plus').addEventListener('mousedown', onMouseDown);
   document.getElementById('z-minus').addEventListener('mousedown', onMouseDown);
   document.getElementById('open').addEventListener('mousedown', onMouseDown);
+  document.getElementById('close').addEventListener('mousedown', onMouseDown);
 
   // ---------------------
   // ---------------------
