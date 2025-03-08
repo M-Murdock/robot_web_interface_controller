@@ -1,0 +1,12 @@
+<launch>
+  <arg name="ws_port" default="9090" doc="Websocket port for rosbridge" />
+
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
+     <arg name="port" value="$(arg ws_port)"/>
+  </include>
+
+  <node name="joy_server" pkg="robot_web_interface_controller" type="start_flask.py">
+    <param name="ws_port" value="$(arg ws_port)" />
+  </node>
+
+</launch>
