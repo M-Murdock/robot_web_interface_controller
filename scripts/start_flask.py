@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from flask import Flask, render_template, request
+from flask import abort, Flask, render_template, request
 import os
 import sys
 from urllib.parse import urlparse
@@ -12,14 +12,22 @@ scriptsdir = os.path.dirname(filename)
 basedir = os.path.dirname(scriptsdir) 
 app = Flask(__name__, root_path=basedir)
 
+MODES = ("toggle", "hold", "jog")
+
 @app.route("/")
-def hello_world():
+@app.route("/<mode>")
+def hello_world(mode=None):
+    if mode is not None and not mode in MODES:
+        abort(404)
+
+    if mode is None:
+        mode = app.config["MODE"]
+
     # figure out what url the client computer thinks we are on
     hosturl = urlparse(request.host_url)
     
-    return render_template('index.html', 
+    return render_template(f'{mode}.html', 
         host=hosturl.hostname, # contact the same server for ws that we used for http
-        ws_proto="wss" if hosturl.scheme == "https" else "ws", # use wss if secure connection
         **app.config.get_namespace("PAGEPARAMS_")) # load in any params we specified in the config (ws_port)
 
 
@@ -27,11 +35,12 @@ if __name__ == '__main__':
     # set up parser to get args from command line AND rosparam (if available)
     # todo: make this work also from a config file
     parser = argparse.ArgumentParser(description="launch web-based joystick interface")
-    parser.add_argument("-n", "--hostname", help="hostname to launch on")
-    parser.add_argument("-p", "--port", help="port to launch on")
+    parser.add_argument("-n", "--hostname", help="hostname to launch on", default="127.0.0.1")
+    parser.add_argument("-p", "--port", help="port to launch on", default="5000")
     parser.add_argument("-w", "--ws-port", default="9090", help="websocket port to use")
     parser.add_argument("-d", "--debug", action="store_true", help="launch in debug mode")
-    parser.add_argument("--toggle", action="store_true", help="run in button toggle mode rather than hold mouse click mode", default=True)
+    parser.add_argument("-m", "--mode", choices=MODES, help="control mode to use", default="toggle")
+    parser.add_argument("-s", "--secure", action="store_true", help="using secure (https/wss) mode")
     
     # load default values using rospy, if available
     try:
@@ -55,16 +64,21 @@ if __name__ == '__main__':
     # this probably can be done in a smarter way but that's more complicated
     # do each var explicitly as best practice against weird code injection 
 
-    hostname = args.hostname or "127.0.0.1"
-    port = args.port or "5000"
-    app.config["SERVER_NAME"] = f"{hostname}:{port}"
-    rospy.loginfo(f"Control server running on {app.config['SERVER_NAME']}")
+    app.config["SERVER_NAME"] = f"{args.hostname}:{args.port}"
+    if rospy:
+        rospy.loginfo(f"Control server running on {app.config['SERVER_NAME']}")
+    else:
+        print(f"Control server running on {app.config['SERVER_NAME']}")
+
+    # default mode, can be overridden
+    app.config["MODE"] = args.mode
+
     # values to be passed directly to the template(s) to render
     # keys must be all-caps but will be turned back to lowercase inside the template
     # to pass a parameter along internally, use the prefix PAGEPARAMS_ and it should
     # automatically show up when the template is rendered
-    app.config["PAGEPARAMS_WS_PORT"] = args.ws_port   
-    app.config["PAGEPARAMS_TOGGLE"] = bool(args.toggle)
+    app.config["PAGEPARAMS_SECURE"] = args.secure
+    app.config["PAGEPARAMS_WS_PORT"] = args.ws_port
 
     app.run()
 

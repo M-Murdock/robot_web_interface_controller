@@ -1,0 +1,20 @@
+
+{% macro make_input_toggle(id, label, aria_label=None, group=None) -%}
+  <input type="checkbox" id="{{ id }}" class="btn-check control" autocomplete="off" {% 
+    if not group is none -%}
+      name="{{group}}" 
+    {%- endif %}>
+  <label class="btn btn-outline-secondary" for="{{ id }}">{{ label | safe }}
+    {%- if not aria_label is none -%}
+    <span class="visually-hidden">{{ aria_label }}</span>
+    {%- endif -%}
+  </label>
+{% endmacro %}
+
+{% macro make_input_hold(id, label, aria_label=None, group=None) -%}
+  <button class="key btn btn-secondary control" id="{{ id }}" {% 
+    if not aria_label is none -%}
+      aria_label="{{ aria_label }}"
+    {%- endif -%}
+  >{{ label | title | safe }}</button>
+{%- endmacro %}

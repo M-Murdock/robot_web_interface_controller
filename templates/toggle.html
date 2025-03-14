@@ -1,0 +1,32 @@
+{% extends "container.html" %}
+
+{% from "utils.html" import make_input_toggle as make_input %}
+
+{% block controls %}
+
+<div class="keypad">
+    <div class="invisible"></div>
+    {{ make_input("up", "&#8593;", "forward", group="y") }}
+    <div class="invisible"></div>
+    {{ make_input("left", "&#8592;", "left", group="x") }}
+    <div class="invisible"></div>
+    {{ make_input("right", "&#8594;", "right", group="x") }}
+    <div class="invisible"></div>
+    {{ make_input("down", "&#8595;", "back", group="y") }}
+    <div class="invisible"></div>
+    {{ make_input("z-plus", "up", group="z") }}
+    <div class="invisible"></div>
+    {{ make_input("z-minus", "down", group="z") }}
+    {{ make_input("open", "open", group="grip") }}
+    <div class="invisible"></div>
+    {{ make_input("close", "close", group="grip") }}
+  </div>
+  
+
+{% endblock %}
+
+{% block setup %}
+
+$(".control").on("change", pub.checkSwitched);
+
+{% endblock %}
