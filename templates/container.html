@@ -47,8 +47,9 @@
     <div class="row">
         <textarea id="output" cols="80" rows="10" readonly="true"></textarea>
     </div>
+    </div>
+
 <script>
-  
   // set up testing if necessary
   
   const params = new URLSearchParams(document.location.search);
@@ -161,31 +162,25 @@ function _buildMessage(joyMsg, direction) {
 
    checkSwitched = (e) => {
       // make it act like a radiobutton: clear all other btns that share a name
-      for (let btn of document.querySelectorAll(`input[name=${e.target.name}]`)) {
-        if (btn.id !== e.target.id) {
-          btn.checked = false;
+        $(`[name=${e.target.name}][id!=${e.target.id}]`).prop("checked", false);
+        this._sendMsgFromActive($(".control:checked").map((i,e) => e.id).get());
         }
-      }
 
-
+    _sendMsgFromActive = (active) => {
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
         buttons: [0, 0] // Initialize buttons
       });
-      Array.prototype.map.call(
-        document.getElementsByClassName("btn-check"), 
-        function (btn) {
-          if (btn.checked) {
-            _buildMessage(joyMsg, btn.id);
-          }
+      active.forEach(d => {
+        _buildMessage(joyMsg, d);
       });
+
       if (this.joyTopic) {
         this.joyTopic.publish(joyMsg);
       }
       displayMsg(`axes: ${joyMsg.axes}, buttons: ${joyMsg.buttons}`);
       console.log(joyMsg);
    }
-
   }
   
   let pub = new JoyPublisher();
