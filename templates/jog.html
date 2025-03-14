@@ -1,0 +1,67 @@
+{% extends "container.html" %}
+
+{% from "utils.html" import make_input_hold as make_input %}
+
+{% block controls %}
+
+<div class="keypad">
+    <div class="invisible"></div>
+    {{ make_input("up", "&#8593;", "forward", group="y") }}
+    <div class="invisible"></div>
+    {{ make_input("left", "&#8592;", "left", group="x") }}
+    <div class="invisible"></div>
+    {{ make_input("right", "&#8594;", "right", group="x") }}
+    <div class="invisible"></div>
+    {{ make_input("down", "&#8595;", "back", group="y") }}
+    <div class="invisible"></div>
+    {{ make_input("z-plus", "up", group="z") }}
+    <div class="invisible"></div>
+    {{ make_input("z-minus", "down", group="z") }}
+    {{ make_input("open", "open", group="grip") }}
+    <div class="invisible"></div>
+    {{ make_input("close", "close", group="grip") }}
+  </div>
+  
+
+{% endblock %}
+
+{% block setup %}
+
+class JogManager {
+  constructor (callback, timeout = 1000) {
+    this._active = new Map();
+    this.callback = callback;
+    if (params.has("timeout")) {
+      this.timeout = parseInt(params.get("timeout"));
+    } else {
+      this.timeout = timeout;
+    }
+  };
+
+  activate = (name) => {
+    if (this._active.has(name)) {
+      window.clearTimeout(this._active.get(name));
+      // delete it so when we set it below, it becomes the most recent element
+      // and takes precedence over previous buttons on this axis
+      this._active.delete(name);
+    }
+    this._active.set(name, window.setTimeout(function () {
+      this.deactivate(name);
+    }.bind(this), this.timeout));
+
+    this.callback(this._active.keys());
+  };
+
+  deactivate = (name) => {
+    if (!this._active.delete(name)) {
+      throw new ReferenceError(`deactivating inactive jog: ${name}`);
+    }
+    this.callback(this._active.keys());
+  };
+}
+
+const jogger = new JogManager(pub.sendMsgFromActive);
+
+$(".control").on("click", function (e) { jogger.activate(e.target.id) });
+
+{% endblock %}

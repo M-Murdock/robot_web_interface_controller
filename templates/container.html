@@ -49,7 +49,7 @@
     </div>
     </div>
 
-<script>
+<script>  
   // set up testing if necessary
   
   const params = new URLSearchParams(document.location.search);
@@ -97,6 +97,8 @@ function _buildMessage(joyMsg, direction) {
       break;
   }
 }
+
+
 
   class JoyPublisher {
     constructor() {
@@ -157,16 +159,16 @@ function _buildMessage(joyMsg, direction) {
         this.joyTopic.publish(joyMsg);
       }
       displayMsg("released");
-   };
+    };
 
 
-   checkSwitched = (e) => {
-      // make it act like a radiobutton: clear all other btns that share a name
+    checkSwitched = (e) => {
+        // make it act like a radiobutton: clear all other btns that share a name
         $(`[name=${e.target.name}][id!=${e.target.id}]`).prop("checked", false);
-        this._sendMsgFromActive($(".control:checked").map((i,e) => e.id).get());
-        }
+        this.sendMsgFromActive($(".control:checked").map((i,e) => e.id).get());
+    };
 
-    _sendMsgFromActive = (active) => {
+    sendMsgFromActive = (active) => {
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
         buttons: [0, 0] // Initialize buttons
@@ -180,7 +182,7 @@ function _buildMessage(joyMsg, direction) {
       }
       displayMsg(`axes: ${joyMsg.axes}, buttons: ${joyMsg.buttons}`);
       console.log(joyMsg);
-   }
+    };
   }
   
   let pub = new JoyPublisher();
