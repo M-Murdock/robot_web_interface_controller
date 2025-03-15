@@ -44,6 +44,15 @@
     {% block controls %}
     {% endblock %}
 
+    {% if mode_switch %}
+    <div class="row">
+      <div class="col-2 align-self-center">
+        <button class="key btn btn-secondary" id="mode-switch">Next mode</button>
+      </div>
+    </div>
+    {% endif %}
+
+    <br>
     <div class="row">
         <textarea id="output" cols="80" rows="10" readonly="true"></textarea>
     </div>
@@ -135,7 +144,7 @@ function _buildMessage(joyMsg, direction) {
     buttonPressed = (e) => {
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
-        buttons: [0, 0] // Initialize buttons
+        buttons: [0, 0{%- if mode_switch -%}, 0{% endif %}] // Initialize buttons
       });
 
       const direction = e.target.id;
@@ -152,7 +161,7 @@ function _buildMessage(joyMsg, direction) {
       // Publish the joy message
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
-        buttons: [0, 0] // Initialize buttons
+        buttons: [0, 0{%- if mode_switch -%}, 0{% endif %}] // Initialize buttons
       });
 
       if (this.joyTopic) {
@@ -171,7 +180,7 @@ function _buildMessage(joyMsg, direction) {
     sendMsgFromActive = (active) => {
       var joyMsg = new ROSLIB.Message({
         axes: [0.0, 0.0, 0.0], // Initialize axes
-        buttons: [0, 0] // Initialize buttons
+        buttons: [0, 0{%- if mode_switch -%}, 0{% endif %}] // Initialize buttons
       });
       active.forEach(d => {
         _buildMessage(joyMsg, d);
@@ -187,6 +196,20 @@ function _buildMessage(joyMsg, direction) {
   
   let pub = new JoyPublisher();
   pub.setup();
+
+  {% if mode_switch %}
+  $("#mode-switch").on("click", function () {
+      var joyMsg = new ROSLIB.Message({
+        axes: [0.0, 0.0, 0.0], // Initialize axes
+        buttons: [0, 0, 1] // Initialize buttons
+      });
+      if (this.joyTopic) {
+        this.joyTopic.publish(joyMsg);
+      }
+      displayMsg(`axes: ${joyMsg.axes}, buttons: ${joyMsg.buttons}`);
+      console.log(joyMsg);
+  });
+  {% endif %}
 
  {% block setup %}
  {% endblock %}

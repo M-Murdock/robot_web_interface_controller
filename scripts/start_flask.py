@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--debug", action="store_true", help="launch in debug mode")
     parser.add_argument("-m", "--mode", choices=MODES, help="control mode to use", default="toggle")
     parser.add_argument("-s", "--secure", action="store_true", help="using secure (https/wss) mode")
+    parser.add_argument("--mode-switch", action="store_true", help="enable mode switch button")
     
     # load default values using rospy, if available
     try:
@@ -79,6 +80,7 @@ if __name__ == '__main__':
     # automatically show up when the template is rendered
     app.config["PAGEPARAMS_SECURE"] = args.secure
     app.config["PAGEPARAMS_WS_PORT"] = args.ws_port
+    app.config["PAGEPARAMS_MODE_SWITCH"] = args.mode_switch
 
     app.run()
 
